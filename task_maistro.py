@@ -46,19 +46,27 @@ def extract_tool_info(tool_calls, schema_name="Memory"):
         tool_calls: List of tool calls from the model
         schema_name: Name of the schema tool (e.g., "Memory", "ToDo", "Profile")
     """
-
     # Initialize list of changes
     changes = []
     
     for call_group in tool_calls:
         for call in call_group:
             if call['name'] == 'PatchDoc':
-                changes.append({
-                    'type': 'update',
-                    'doc_id': call['args']['json_doc_id'],
-                    'planned_edits': call['args']['planned_edits'],
-                    'value': call['args']['patches'][0]['value']
-                })
+                # Check if there are any patches
+                if call['args']['patches']:
+                    changes.append({
+                        'type': 'update',
+                        'doc_id': call['args']['json_doc_id'],
+                        'planned_edits': call['args']['planned_edits'],
+                        'value': call['args']['patches'][0]['value']
+                    })
+                else:
+                    # Handle case where no changes were needed
+                    changes.append({
+                        'type': 'no_update',
+                        'doc_id': call['args']['json_doc_id'],
+                        'planned_edits': call['args']['planned_edits']
+                    })
             elif call['name'] == schema_name:
                 changes.append({
                     'type': 'new',
@@ -73,6 +81,11 @@ def extract_tool_info(tool_calls, schema_name="Memory"):
                 f"Document {change['doc_id']} updated:\n"
                 f"Plan: {change['planned_edits']}\n"
                 f"Added content: {change['value']}"
+            )
+        elif change['type'] == 'no_update':
+            result_parts.append(
+                f"Document {change['doc_id']} unchanged:\n"
+                f"{change['planned_edits']}"
             )
         else:
             result_parts.append(
@@ -137,9 +150,7 @@ profile_extractor = create_extractor(
 ## Prompts 
 
 # Chatbot instruction for choosing what to update and what tools to call 
-MODEL_SYSTEM_MESSAGE = """You are a helpful chatbot. 
-
-You are designed to be a companion to a user, helping them keep track of their ToDo list.
+MODEL_SYSTEM_MESSAGE = """{task_maistro_role} 
 
 You have a long term memory which keeps track of three things:
 1. The user's profile (general information about them) 
@@ -208,9 +219,11 @@ def task_mAIstro(state: MessagesState, config: RunnableConfig, store: BaseStore)
     # Get the user ID from the config
     configurable = configuration.Configuration.from_runnable_config(config)
     user_id = configurable.user_id
+    todo_category = configurable.todo_category
+    task_maistro_role = configurable.task_maistro_role
 
    # Retrieve profile memory from the store
-    namespace = ("profile", user_id)
+    namespace = ("profile", todo_category, user_id)
     memories = store.search(namespace)
     if memories:
         user_profile = memories[0].value
@@ -218,19 +231,19 @@ def task_mAIstro(state: MessagesState, config: RunnableConfig, store: BaseStore)
         user_profile = None
 
     # Retrieve people memory from the store
-    namespace = ("todo", user_id)
+    namespace = ("todo", todo_category, user_id)
     memories = store.search(namespace)
     todo = "\n".join(f"{mem.value}" for mem in memories)
 
     # Retrieve custom instructions
-    namespace = ("instructions", user_id)
+    namespace = ("instructions", todo_category, user_id)
     memories = store.search(namespace)
     if memories:
         instructions = memories[0].value
     else:
         instructions = ""
     
-    system_msg = MODEL_SYSTEM_MESSAGE.format(user_profile=user_profile, todo=todo, instructions=instructions)
+    system_msg = MODEL_SYSTEM_MESSAGE.format(task_maistro_role=task_maistro_role, user_profile=user_profile, todo=todo, instructions=instructions)
 
     # Respond using memory as well as the chat history
     response = model.bind_tools([UpdateMemory], parallel_tool_calls=False).invoke([SystemMessage(content=system_msg)]+state["messages"])
@@ -244,9 +257,10 @@ def update_profile(state: MessagesState, config: RunnableConfig, store: BaseStor
     # Get the user ID from the config
     configurable = configuration.Configuration.from_runnable_config(config)
     user_id = configurable.user_id
+    todo_category = configurable.todo_category
 
     # Define the namespace for the memories
-    namespace = ("profile", user_id)
+    namespace = ("profile", todo_category, user_id)
 
     # Retrieve the most recent memories for context
     existing_items = store.search(namespace)
@@ -284,9 +298,10 @@ def update_todos(state: MessagesState, config: RunnableConfig, store: BaseStore)
     # Get the user ID from the config
     configurable = configuration.Configuration.from_runnable_config(config)
     user_id = configurable.user_id
+    todo_category = configurable.todo_category
 
     # Define the namespace for the memories
-    namespace = ("todo", user_id)
+    namespace = ("todo", todo_category, user_id)
 
     # Retrieve the most recent memories for context
     existing_items = store.search(namespace)
@@ -339,8 +354,9 @@ def update_instructions(state: MessagesState, config: RunnableConfig, store: Bas
     # Get the user ID from the config
     configurable = configuration.Configuration.from_runnable_config(config)
     user_id = configurable.user_id
+    todo_category = configurable.todo_category
     
-    namespace = ("instructions", user_id)
+    namespace = ("instructions", todo_category, user_id)
 
     existing_memory = store.get(namespace, "user_instructions")
         
