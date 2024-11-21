@@ -67,6 +67,8 @@ The fastest way to get started is with [LangGraph Studio](https://github.com/lan
 - Ensure [Docker Desktop](https://docs.docker.com/engine/install/) is running
 - Load this repository as a project
 
+![Screenshot 2024-11-20 at 7 42 35 PM](https://github.com/user-attachments/assets/05c0b98f-2b8c-4098-a7fc-67044fd0db21)
+
 #### 2. LangGraph CLI
 For developers who prefer the command line:
 - Use the [LangGraph CLI](https://langchain-ai.github.io/langgraph/concepts/langgraph_cli/#up)
