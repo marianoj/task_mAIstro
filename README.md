@@ -8,6 +8,8 @@ Key features:
 * Persistent memory of tasks, context, and preferences
 * Flexible deployment options - local or hosted
 
+![audio_task_maistro](https://github.com/user-attachments/assets/170e1088-499a-4373-b724-da51e9778296)
+
 ## Quickstart
 
 1. Populate the `.env` file: 
