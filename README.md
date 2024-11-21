@@ -1,9 +1,9 @@
 # Task mAIstro
 
-Managing tasks effectively is a universal challenge. Task mAIstro is an AI-powered task management agent that combines natural language processing with long-term memory to create a more intuitive and adaptive experience.
+Managing tasks effectively is a universal challenge. Task mAIstro is an AI-powered task management agent that combines natural language processing with long-term memory to create a more intuitive and adaptive experience. This repo can be used to deploy Task mAIstro and interact with it through text or voice!
 
 Key features:
-* Natural conversation through text and voice to update or add tasks
+* Natural conversation through text and / or voice to update or add tasks
 * Adaptive learning of your management style and preferences
 * Persistent memory of tasks, context, and preferences
 * Flexible deployment options - local or hosted
@@ -21,7 +21,7 @@ $ cp .env.example .env
 
 4. Start chatting with the task mAIstro through the text interface in LangGraph Studio.
 
-5. Interact with your deployment through voice in `ntbk/audio_ux.ipynb`.
+5. Experiment with voice UX in `ntbk/audio_ux.ipynb`.
 
 ## Task mAIstro Application
 
@@ -49,9 +49,11 @@ The graph flow is orchestrated by a central `task_maistro` node that:
 - Chooses to update one of the three memories based on the user's input
 - Uses tool calling with the [Trustcall library](https://github.com/hinthornw/trustcall) to update the chosen memory type
 
-For a detailed walkthrough of how this graph is built, check out [Module 5 of our LangGraph Course](https://academy.langchain.com/courses/intro-to-langgraph): 
-- All notebooks are available [here](https://github.com/langchain-ai/langchain-academy/tree/main/module-5)
-- All notebooks have accompanying videos
+### 📚 Learning Resources
+
+> **Want to learn more?** Check out [Module 5 of our LangGraph Course](https://academy.langchain.com/courses/intro-to-langgraph): 
+> - All notebooks are available [here](https://github.com/langchain-ai/langchain-academy/tree/main/module-5)
+> - All notebooks have accompanying videos
 
 ### Deployment Options
 
@@ -75,7 +77,10 @@ For production deployments:
 - Manage through your LangSmith account
 - Access via LangGraph Studio web UI
 
-Want to learn more about deployments? Check out [Module 6 of our LangGraph Course](https://academy.langchain.com/courses/intro-to-langgraph) ([notebooks](https://github.com/langchain-ai/langchain-academy/tree/main/module-6))!
+### 🚀 Learning Resources
+> **Want to learn more about deployments?** Check out [Module 6 of our LangGraph Course](https://academy.langchain.com/courses/intro-to-langgraph) 
+> - All notebooks are available [here](https://github.com/langchain-ai/langchain-academy/tree/main/module-6)
+> - All notebooks have accompanying videos
 
 ## Voice Interface
 
@@ -91,13 +96,7 @@ Task mAIstro supports voice interactions using:
 brew install ffmpeg
 ```
 
-2. See `ntbk/audio_ux.ipynb` for implementation details
-
-### Connecting Voice Interface
-
-In `audio_ux.ipynb`, connect to your deployment using the URL endpoint:
+2. In `audio_ux.ipynb`, connect to your deployment using the URL endpoint:
 - **Studio**: Found in Studio UI
 - **CLI**: Printed to console (e.g., typically `http://localhost:8123`)
-- **Cloud**: Available in LangGraph Deployment page
-
-Learn more about voice agents: [MIT Tech Review](https://www.technologyreview.com/2024/09/24/1104422/openai-released-its-advanced-voice-mode-to-more-people-heres-how-to-get-it/) | [OpenAI Blog](https://openai.com/index/introducing-the-realtime-api/). 
+- **Cloud**: Available in the LangSmith Deployment page
